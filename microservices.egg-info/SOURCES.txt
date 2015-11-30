@@ -1,0 +1,8 @@
+setup.py
+microservices.egg-info/PKG-INFO
+microservices.egg-info/SOURCES.txt
+microservices.egg-info/dependency_links.txt
+microservices.egg-info/requires.txt
+microservices.egg-info/top_level.txt
+services/__init__.py
+services/movies.py
