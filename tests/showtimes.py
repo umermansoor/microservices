@@ -5,8 +5,8 @@ class TestShowTimesService(unittest.TestCase):
     def setUp(self):
         self.url = "http://127.0.0.1:5002/showtimes"
 
-    def test_all_showtimes_records(self):
-        """ Test /showtimes for all known showtimes"""
+    def test_showtimes_records(self):
+        """ Test /showtimes/<date> for all known showtimes"""
         for date, expected in GOOD_RESPONSES.iteritems():
             reply = requests.get("{}/{}".format(self.url, date))
             actual_reply = reply.json()
@@ -21,10 +21,11 @@ class TestShowTimesService(unittest.TestCase):
                              "Got {} but expected {}".format(
                                  actual_reply, expected))
 
+
     def test_not_found(self):
         """ Test /showtimes/<date> for non-existent dates"""
-        future_date = 20490101
-        actual_reply = requests.get("{}/{}".format(self.url, future_date))
+        invalid_date = 20490101
+        actual_reply = requests.get("{}/{}".format(self.url, invalid_date))
         self.assertEqual(actual_reply.status_code, 404,
                          "Got {} but expected 404".format(
                              actual_reply.status_code))

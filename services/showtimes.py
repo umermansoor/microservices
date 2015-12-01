@@ -15,7 +15,7 @@ def hello():
         "uri": "/",
         "subresource_uris": {
             "showtimes": "/showtimes",
-            "showtime": "/showtimes</date>"
+            "showtime": "/showtimes/<date>"
         }
     })
 

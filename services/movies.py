@@ -15,7 +15,7 @@ def hello():
         "uri": "/",
         "subresource_uris": {
             "movies": "/movies",
-            "movie": "/movies</id>"
+            "movie": "/movies/<id>"
         }
     })
 
@@ -24,7 +24,10 @@ def movie_info(movieid):
     if movieid not in movies:
         raise NotFound
 
-    return nice_json(movies[movieid])
+    result = movies[movieid]
+    result["uri"] = "/movies/{}".format(movieid)
+
+    return nice_json(result)
 
 @app.route("/movies")
 def movie_record():
