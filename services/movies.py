@@ -1,20 +1,21 @@
-from services import root_dir
-from flask import Flask, json, jsonify
+from services import root_dir, nice_json
+from flask import Flask
 from werkzeug.exceptions import NotFound
+import json
 
 
 app = Flask(__name__)
 
-with open("{}/database/movies.json".format(root_dir()), 'r') as f:
+with open("{}/database/movies.json".format(root_dir()), "r") as f:
     movies = json.load(f)
 
 @app.route("/")
 def hello():
-    return jsonify({
-        'uri': "/",
-        'subresource_uris': {
-            'movies': '/movies',
-            'movie': '/movies</id>'
+    return nice_json({
+        "uri": "/",
+        "subresource_uris": {
+            "movies": "/movies",
+            "movie": "/movies</id>"
         }
     })
 
@@ -23,13 +24,11 @@ def movie_info(movieid):
     if movieid not in movies:
         raise NotFound
 
-    return jsonify(movies[movieid])
+    return nice_json(movies[movieid])
 
 @app.route("/movies")
-def movie_list():
-    return jsonify(movies)
-
-
+def movie_record():
+    return nice_json(movies)
 
 
 if __name__ == "__main__":
