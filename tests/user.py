@@ -60,3 +60,6 @@ GOOD_RESPONSES = {
     "last_active": 1360031202
   }
 }
+
+if __name__ == "__main__":
+    unittest.main()

@@ -21,10 +21,6 @@ class TestMoviesService(unittest.TestCase):
                         actual_reply.status_code))
 
 
-
-
-
-
 GOOD_RESPONSES = {
   "720d006c-3a57-4b6a-b18f-9b713b073f3c": {
     "title": "The Good Dinosaur",
@@ -69,3 +65,6 @@ GOOD_RESPONSES = {
     "id": "39ab85e5-5e8e-4dc5-afea-65dc368bd7ab"
   }
 }
+
+if __name__ == "__main__":
+    unittest.main()

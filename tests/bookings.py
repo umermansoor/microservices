@@ -55,3 +55,6 @@ GOOD_RESPONSES = {
     ]
   }
 }
+
+if __name__ == "__main__":
+    unittest.main()
