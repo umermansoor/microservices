@@ -26,9 +26,3 @@ shutdown:
 	ps -ef | grep "services/bookings.py" | grep -v grep | awk '{print $$2}' | xargs kill  
 	ps -ef | grep "services/user.py" | grep -v grep | awk '{print $$2}' | xargs kill  
 
-test:
-	. venv/bin/activate; python tests/movies.py
-	. venv/bin/activate; python tests/showtimes.py
-	. venv/bin/activate; python tests/bookings.py
-	. venv/bin/activate; python tests/user.py
-
