@@ -1,4 +1,4 @@
-# Cinema 3 - Example of Microservices in Python
+# Cinema 3 - (Extremely Simplified) Example of Microservices in Python
 
 
 Overview
