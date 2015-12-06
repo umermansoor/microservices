@@ -21,8 +21,8 @@ launch: venv shutdown
 	. venv/bin/activate; python  services/user.py &
 
 shutdown:
-	ps -ef | grep "services/movies.py" | grep -v grep | awk '{print $$2}' | xargs kill  
-	ps -ef | grep "services/showtimes.py" | grep -v grep | awk '{print $$2}' | xargs kill  
-	ps -ef | grep "services/bookings.py" | grep -v grep | awk '{print $$2}' | xargs kill  
-	ps -ef | grep "services/user.py" | grep -v grep | awk '{print $$2}' | xargs kill  
-
+	echo | xargs -r &>/dev/null && XARGS_OPTS="-r"
+	ps -ef | grep "services/movies.py" | grep -v grep | awk '{print $$2}' | xargs ${XARGS_OPTS} kill  
+	ps -ef | grep "services/showtimes.py" | grep -v grep | awk '{print $$2}' | xargs ${XARGS_OPTS} kill
+	ps -ef | grep "services/bookings.py" | grep -v grep | awk '{print $$2}' | xargs ${XARGS_OPTS} kill 
+	ps -ef | grep "services/user.py" | grep -v grep | awk '{print $$2}' | xargs ${XARGS_OPTS} kill
