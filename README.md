@@ -9,7 +9,7 @@ The Cinema 3 backend is powered by 4 microservices, all of which happen to be wr
 Flask.
 
  * Movie Service: Provides information like movie ratings, title, etc.
- * Shows Times Service: Provides show times information.
+ * Show Times Service: Provides show times information.
  * Booking Service: Provides booking information. 
  * Users Service: Provides movie suggestions for users by communicating with other services.
 
@@ -49,7 +49,7 @@ APIs and Documentation
 
 ## Movie Service (port 5001)
 
-This service is used get information about a movie. It provides the movie title, rating on a 1-10 scale, 
+This service is used to get information about a movie. It provides the movie title, rating on a 1-10 scale, 
 director and other information.
 
 To lookup all movies in the database, hit: `http://127.0.0.1:5001/movies`
