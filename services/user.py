@@ -23,9 +23,11 @@ def hello():
         }
     })
 
+
 @app.route("/users")
 def users_list():
     return nice_json(users)
+
 
 @app.route("/users/<username>")
 def user_record(username):
@@ -33,6 +35,7 @@ def user_record(username):
         raise NotFound
 
     return nice_json(users[username])
+
 
 @app.route("/users/<username>/bookings")
 def user_bookings(username):
@@ -46,7 +49,7 @@ def user_bookings(username):
         raise NotFound("User '{}' not found.".format(username))
 
     try:
-        users_bookings = requests.get("http://127.0.0.1:5003/bookings/{}".format(username))
+        users_bookings = requests.get("http://0:5003/bookings/{}".format(username))
     except requests.exceptions.ConnectionError:
         raise ServiceUnavailable("The Bookings service is unavailable.")
 
@@ -61,7 +64,7 @@ def user_bookings(username):
         result[date] = []
         for movieid in movies:
             try:
-                movies_resp = requests.get("http://127.0.0.1:5001/movies/{}".format(movieid))
+                movies_resp = requests.get("http://0:5001/movies/{}".format(movieid))
             except requests.exceptions.ConnectionError:
                 raise ServiceUnavailable("The Movie service is unavailable.")
             movies_resp = movies_resp.json()
@@ -86,4 +89,4 @@ def user_suggested(username):
 
 
 if __name__ == "__main__":
-    app.run(port = 5000, debug = True)
+    app.run(port=5000, debug=True)

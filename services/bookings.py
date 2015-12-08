@@ -25,6 +25,7 @@ def hello():
 def booking_list():
     return nice_json(bookings)
 
+
 @app.route("/bookings/<username>")
 def booking_record(username):
     if username not in bookings:
@@ -32,6 +33,6 @@ def booking_record(username):
 
     return nice_json(bookings[username])
 
-if __name__ == "__main__":
-    app.run(port=5003, debug = True)
 
+if __name__ == "__main__":
+    app.run(port=5003, debug=True)
