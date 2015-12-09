@@ -82,7 +82,7 @@ def user_suggested(username):
     :param username:
     :return: Suggested movies
     """
-    pass
+    raise NotImplementedError()
 
 
 if __name__ == "__main__":
