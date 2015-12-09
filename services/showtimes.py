@@ -9,6 +9,7 @@ app = Flask(__name__)
 with open("{}/database/showtimes.json".format(root_dir()), "r") as f:
     showtimes = json.load(f)
 
+
 @app.route("/")
 def hello():
     return nice_json({
@@ -19,9 +20,11 @@ def hello():
         }
     })
 
+
 @app.route("/showtimes")
 def showtimes_list():
     return nice_json(showtimes)
+
 
 @app.route("/showtimes/<date>")
 def showtimes_record(date):
@@ -30,5 +33,6 @@ def showtimes_record(date):
     print showtimes[date]
     return nice_json(showtimes[date])
 
+
 if __name__ == "__main__":
-    app.run(port=5002, debug = True)
+    app.run(port=5002, debug=True)
