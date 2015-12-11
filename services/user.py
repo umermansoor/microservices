@@ -23,9 +23,11 @@ def hello():
         }
     })
 
+
 @app.route("/users")
 def users_list():
     return nice_json(users)
+
 
 @app.route("/users/<username>")
 def user_record(username):
@@ -33,6 +35,7 @@ def user_record(username):
         raise NotFound
 
     return nice_json(users[username])
+
 
 @app.route("/users/<username>/bookings")
 def user_bookings(username):
@@ -86,4 +89,4 @@ def user_suggested(username):
 
 
 if __name__ == "__main__":
-    app.run(port = 5000, debug = True)
+    app.run(port=5000, debug=True)

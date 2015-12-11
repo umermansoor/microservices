@@ -9,6 +9,7 @@ app = Flask(__name__)
 with open("{}/database/movies.json".format(root_dir()), "r") as f:
     movies = json.load(f)
 
+
 @app.route("/")
 def hello():
     return nice_json({
@@ -29,11 +30,12 @@ def movie_info(movieid):
 
     return nice_json(result)
 
+
 @app.route("/movies")
 def movie_record():
     return nice_json(movies)
 
 
 if __name__ == "__main__":
-    app.run(port=5001, debug = True)
+    app.run(port=5001, debug=True)
 
