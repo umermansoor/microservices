@@ -1,7 +1,7 @@
 import os
 import json
 from flask import make_response
-
+#Comment line
 
 def root_dir():
     """ Returns root director for this project """
