@@ -14,7 +14,7 @@ Flask.
  * Users Service: Provides movie suggestions for users by communicating with other services.
 
 Requirements
-===========
+=============
 
 * Python 2.7
 * Works on Linux, Windows, Mac OSX and (quite possibly) BSD.
