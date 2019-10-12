@@ -6,7 +6,7 @@ Overview
 
 Cinema 3 is an example project which demonstrates the use of microservices for a fictional movie theater. 
 The Cinema 3 backend is powered by 4 microservices, all of which happen to be written in Python using 
-Flask.
+Flask. For more information, you can refer to the blog post here: https://codeahoy.com/2016/07/10/writing-microservices-in-python-using-flask/
 
  * Movie Service: Provides information like movie ratings, title, etc.
  * Show Times Service: Provides show times information.
