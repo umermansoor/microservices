@@ -182,14 +182,22 @@ To get a list of all the users and their rewards score in the system, hit: `http
 
     GET /rewards
     {
-        "chris_rivers": 1,
-        "garret_heaton": 2,
-        "dwight_schrute": 4
+        "chris_rivers": {
+            "score":1
+        },
+        "garret_heaton": {
+            "score":2
+        },
+        "dwight_schrute": {
+            "score":4
+        }
     }
 
 To lookup the score for a user, it goes like this:
 
     GET /rewards/michael_scott
     {
-        "michael_scott": 1,
+        "michael_scott": {
+            "score":1
+            }
     }
