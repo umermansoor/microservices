@@ -6,8 +6,9 @@ import json
 
 app = Flask(__name__)
 
-with open("{}/database/movies.json".format(root_dir()), "r") as f:
-    movies = json.load(f)
+# load the movies database
+with open("{}/database/movies.json".format(root_dir()), "r") as data:
+    movies = json.load(data)
 
 
 @app.route("/", methods=['GET'])
@@ -20,6 +21,7 @@ def hello():
         }
     })
 
+# route to get a movie by its id
 @app.route("/movies/<movieid>", methods=['GET'])
 def movie_info(movieid):
     if movieid not in movies:
@@ -30,12 +32,12 @@ def movie_info(movieid):
 
     return nice_json(result)
 
-
+# route to GET all movies
 @app.route("/movies", methods=['GET'])
 def movie_record():
     return nice_json(movies)
 
-
+# exeuted when this is called from the cmd
 if __name__ == "__main__":
     app.run(port=5001, debug=True)
 
