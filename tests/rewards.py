@@ -34,7 +34,7 @@ class TestRewardService(unittest.TestCase):
     	actual_reply = response.json()
 
     	self.assertEqual(actual_reply, expected_reply,
-    		f"Got {actual_reply} points but expected {expected_reply} points as the new score"))
+    		f"Got {actual_reply} points but expected {expected_reply} points as the new score")
 
 
 	def test_is_prize_available(self):
@@ -46,7 +46,7 @@ class TestRewardService(unittest.TestCase):
 		actual_reply = response.json()
 
 		self.assertEqual(actual_reply, expected_reply,
-    		f"Got {actual_reply} but expected {expected_reply} "))		
+    		f"Got {actual_reply} but expected {expected_reply} ")
 
 
 
