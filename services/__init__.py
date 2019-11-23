@@ -10,6 +10,6 @@ def root_dir():
 
 def nice_json(argument):
 	""" Formats json data nicely """
-    response = make_response(json.dumps(argument, sort_keys = True, indent=4))
-    response.headers['Content-type'] = "application/json"
-    return response
+	response = make_response(json.dumps(argument, sort_keys=True, indent=4))
+	response.headers['Content-type'] = "application/json"
+	return response
