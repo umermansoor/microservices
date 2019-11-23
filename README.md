@@ -5,18 +5,18 @@ Overview
 ========
 
 Cinema 3 is an example project which demonstrates the use of microservices for a fictional movie theater. 
-The Cinema 3 backend is powered by 4 microservices, all of which happen to be written in Python using 
-Flask. For more information, you can refer to the blog post here: https://codeahoy.com/2016/07/10/writing-microservices-in-python-using-flask/
+The Cinema 3 backend was originally powered by 4 microservices, and currently has 5 services (7 in a neat future). all of which happen to be written in Python using Flask. For more information, you can refer to original blog post here: https://codeahoy.com/2016/07/10/writing-microservices-in-python-using-flask/
 
  * Movie Service: Provides information like movie ratings, title, etc.
  * Show Times Service: Provides show times information.
  * Booking Service: Provides booking information. 
  * Users Service: Provides movie suggestions for users by communicating with other services.
+ * Rewards Service: Provides rewards for uses that have bought various tickets.
 
 Requirements
 ===========
 
-* Python 2.7
+* Python 3 (Original package was based on python 2.7)
 * Works on Linux, Windows, Mac OSX and (quite possibly) BSD.
 
 Install
@@ -172,3 +172,24 @@ To lookup information about a user:
 To get suggested movies for a user:
 
     GET /users/michael_scott/suggested
+
+## Rewards Service (port 5004)
+
+This service provides rewards for uses that have bought various tickets.
+Everytime a user buy a new ticket his/her scores a new point on the reward service.
+
+To get a list of all the users and their rewards score in the system, hit: `http://127.0.0.1:5000/rewards`
+
+    GET /rewards
+    {
+        "chris_rivers": 1,
+        "garret_heaton": 2,
+        "dwight_schrute": 4
+    }
+
+To lookup the score for a user, it goes like this:
+
+    GET /rewards/michael_scott
+    {
+        "michael_scott": 1,
+    }
