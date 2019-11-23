@@ -10,7 +10,7 @@ app = Flask(__name__)
 with open("{}/database/bookings.json".format(root_dir()), "r") as data:
     bookings = json.load(data)
 
-# add a route to GET the books json
+# add a route to GET the bookings json
 @app.route("/", methods=['GET'])
 def hello():
     return nice_json({

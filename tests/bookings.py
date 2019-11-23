@@ -8,7 +8,7 @@ class TestBookingService(unittest.TestCase):
 
     def test_booking_records(self):
         """ Test /bookings/<username> for all known bookings"""
-        for date, expected in GOOD_RESPONSES.iteritems():
+        for date, expected in GOOD_RESPONSES.items():
             reply = requests.get("{}/{}".format(self.url, date))
             actual_reply = reply.json()
 

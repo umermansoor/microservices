@@ -8,7 +8,7 @@ class TestShowTimesService(unittest.TestCase):
 
     def test_showtimes_records(self):
         """ Test /showtimes/<date> for all known showtimes"""
-        for date, expected in GOOD_RESPONSES.iteritems():
+        for date, expected in GOOD_RESPONSES.items():
             reply = requests.get("{}/{}".format(self.url, date))
             actual_reply = reply.json()
 

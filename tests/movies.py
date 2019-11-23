@@ -8,7 +8,7 @@ class TestMoviesService(unittest.TestCase):
 
     def test_all_movie_records(self):
         """ Test /movies/<movieid> for all known movies"""
-        for movieid, expected in GOOD_RESPONSES.iteritems():
+        for movieid, expected in GOOD_RESPONSES.items():
             expected['uri'] = "/movies/{}".format(movieid)
             reply = requests.get("{}/{}".format(self.url, movieid))
             actual_reply = reply.json()
