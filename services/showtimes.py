@@ -34,7 +34,7 @@ def showtimes_list():
 def showtimes_record(date):
     if date not in showtimes:
         raise NotFound
-    print showtimes[date]
+    #print(showtimes[date])
     return nice_json(showtimes[date])
 
 # exeuted when this is called from the cmd
