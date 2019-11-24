@@ -26,13 +26,19 @@ def hello():
 def booking_list():
     return nice_json(bookings)
 
-# add a route to GET bookings json from a specific user
+# route to GET bookings json from a specific user
 @app.route("/bookings/<username>", methods=['GET'])
 def booking_record(username):
     if username not in bookings:
         raise NotFound
 
     return nice_json(bookings[username])
+
+# Route for adding a new booking
+@app.route("bookings/new_booking", method=["POST"])
+def new_booking():
+    pass
+
 
 # exeuted when this is called from the cmd
 if __name__ == "__main__":

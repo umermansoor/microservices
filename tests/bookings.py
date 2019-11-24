@@ -1,5 +1,8 @@
 import unittest
 import requests
+import json
+from services import bookings
+bookings.testing = True
 
 
 class TestBookingService(unittest.TestCase):
@@ -15,12 +18,27 @@ class TestBookingService(unittest.TestCase):
             self.assertEqual(len(actual_reply), len(expected),
                              "Got {} booking but expected {}".format(
                                  len(actual_reply), len(expected)
-                             ))
+            ))
 
             # Use set because the order doesn't matter
             self.assertEqual(set(actual_reply), set(expected),
                              "Got {} but expected {}".format(
                                  actual_reply, expected))
+
+    def test_new_booking():
+        """ Test for booking creation """
+        # manda o json de um booking fake
+        username = 'michael_scott'
+        date = '20151201'
+        movie = '267eedb8-0f5d-42d5-8f43-72426b9fb3e6'
+        fake_booking = {user: {date: [movie]}}
+
+        # add_booking is a method to be defined later
+        with bookings.add_booking() as add_booking:
+            # send data as POST form to endpoint
+            result = add_boking.post(f'/{username}', data=fake_booking)
+            # check result from server with expected fake booking
+            self.assertEqual(result.data, json.dumps(fake_booking))
 
     def test_not_found(self):
         """ Test /showtimes/<date> for non-existent users"""
@@ -30,30 +48,31 @@ class TestBookingService(unittest.TestCase):
                          "Got {} but expected 404".format(
                              actual_reply.status_code))
 
+
 GOOD_RESPONSES = {
-  "chris_rivers": {
-    "20151201": [
-      "267eedb8-0f5d-42d5-8f43-72426b9fb3e6"
-    ]
-  },
-  "garret_heaton": {
-    "20151201": [
-      "267eedb8-0f5d-42d5-8f43-72426b9fb3e6"
-    ],
-    "20151202": [
-      "276c79ec-a26a-40a6-b3d3-fb242a5947b6"
-    ]
-  },
-  "dwight_schrute": {
-    "20151201": [
-      "7daf7208-be4d-4944-a3ae-c1c2f516f3e6",
-      "267eedb8-0f5d-42d5-8f43-72426b9fb3e6"
-    ],
-    "20151205": [
-      "a8034f44-aee4-44cf-b32c-74cf452aaaae",
-      "276c79ec-a26a-40a6-b3d3-fb242a5947b6"
-    ]
-  }
+    "chris_rivers": {
+        "20151201": [
+            "267eedb8-0f5d-42d5-8f43-72426b9fb3e6"
+        ]
+    },
+    "garret_heaton": {
+        "20151201": [
+            "267eedb8-0f5d-42d5-8f43-72426b9fb3e6"
+        ],
+        "20151202": [
+            "276c79ec-a26a-40a6-b3d3-fb242a5947b6"
+        ]
+    },
+    "dwight_schrute": {
+        "20151201": [
+            "7daf7208-be4d-4944-a3ae-c1c2f516f3e6",
+            "267eedb8-0f5d-42d5-8f43-72426b9fb3e6"
+        ],
+        "20151205": [
+            "a8034f44-aee4-44cf-b32c-74cf452aaaae",
+            "276c79ec-a26a-40a6-b3d3-fb242a5947b6"
+        ]
+    }
 }
 
 if __name__ == "__main__":
