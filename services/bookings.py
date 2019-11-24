@@ -1,6 +1,7 @@
 from services import root_dir, nice_json
 from flask import Flask
-import json
+from json import dumps
+from httplib import OK
 from werkzeug.exceptions import NotFound
 
 # instantiate a flask app and give it a name
@@ -37,7 +38,15 @@ def booking_record(username):
 # Route for adding a new booking
 @app.route("bookings/new_booking", method=["POST"])
 def new_booking():
-    pass
+    user = request.form.get("user")
+    data = request.form.get("data")
+    movie = request.form.get("movie")
+
+    # add data
+    if bookings[user][data]:
+        bookings[user][data].append(movie)
+    else:
+        bookings[user][data] = movie
 
 
 # exeuted when this is called from the cmd

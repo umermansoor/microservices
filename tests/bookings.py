@@ -31,12 +31,12 @@ class TestBookingService(unittest.TestCase):
         username = 'michael_scott'
         date = '20151201'
         movie = '267eedb8-0f5d-42d5-8f43-72426b9fb3e6'
-        fake_booking = {user: {date: [movie]}}
+        fake_booking_data = {"user": user, "date": date, "movie": movie}
 
         # add_booking is a method to be defined later
         with bookings.add_booking() as add_booking:
             # send data as POST form to endpoint
-            result = add_boking.post(f'/{username}', data=fake_booking)
+            result = add_boking.post(f'/{username}', data=fake_booking_data)
             # check result from server with expected fake booking
             self.assertEqual(result.data, json.dumps(fake_booking))
 
