@@ -28,9 +28,9 @@ class TestBookingService(unittest.TestCase):
     def test_new_booking():
         """ Test for booking creation """
         # manda o json de um booking fake
-        username = 'michael_scott'
-        date = '20151201'
-        movie = '267eedb8-0f5d-42d5-8f43-72426b9fb3e6'
+        username = "chris_rivers"
+        date = "20151201"
+        movie = "267eedb8-0f5d-42d5-8f43-72426b9fb3e6"
         fake_booking_data = {"user": user, "date": date, "movie": movie}
 
         # add_booking is a method to be defined later
