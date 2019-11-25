@@ -126,7 +126,7 @@ To get all bookings by all users in the system, hit: `http://127.0.0.1:5003/book
             ]
         }, 
         ...... output truncated ...... 
-        
+    }   
 To lookup booking information for a user:
 
     GET /bookings/dwight_schrute
@@ -141,6 +141,16 @@ To lookup booking information for a user:
                 "276c79ec-a26a-40a6-b3d3-fb242a5947b6"
             ]
         }
+
+To make a new booking the POST request would be:
+        
+    POST /bookings/new
+    {
+        "user" : "chris_rivers",
+        "date": "20151201"
+        "movie": "7daf7208-be4d-4944-a3ae-c1c2f516f3e6"
+    }  
+
 
 ## User Service (port 5000)
 
