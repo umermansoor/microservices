@@ -1,14 +1,29 @@
 from services import root_dir, nice_json
 from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
 from werkzeug.exceptions import NotFound
 import json
 
 
 app = Flask(__name__)
 
-# load the movies database
-with open("{}/database/movies.json".format(root_dir()), "r") as data:
-    movies = json.load(data)
+
+# load the database
+db_file = f"sqlite:///{root_dir()}/database/movies.db"
+app.config['SQLALCHEMY_DATABASE_URI'] = db_file
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+
+
+class Movie(db.Model):
+    """ This class maps the database movie model """
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(120), nullable=False)
+    director = db.Column(db.String(50), nullable=False)
+    rating = db.Column(db.Integer, nullable=False)
+
+    def __repr__(self):
+        return f"<Movie: {self.title}>"
 
 
 @app.route("/", methods=['GET'])

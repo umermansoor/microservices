@@ -1,15 +1,27 @@
 from services import root_dir, nice_json
 from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
 from werkzeug.exceptions import NotFound
 import json
 
 
 app = Flask(__name__)
 
-# load the showtime database
-with open("{}/database/showtimes.json".format(root_dir()), "r") as data:
-    showtimes = json.load(data)
+# load the database
+db_file = f"sqlite:///{root_dir()}/database/showtimes.db"
+app.config['SQLALCHEMY_DATABASE_URI'] = db_file
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
 
+
+class Showtime(db.Model):
+    """ This class maps the database showtime model """
+    id = db.Column(db.Integer, primary_key=True)
+    movie = db.Column(db.Integer, nullable=False)
+    date = db.Column(db.DateTime, nullable=False)
+
+    def __repr__(self):
+        return f"<Showtime: {self.movie} @ {self.date}>"
 
 # add root route
 @app.route("/", methods=['GET'])
