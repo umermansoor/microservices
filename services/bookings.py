@@ -69,6 +69,7 @@ def booking_list():
     """ Return all booking instances """
     bookings = [booking.to_schema_dict() for booking in Booking.query.all()]
     serialized_objects = bookings_schema.dumps(bookings, sort_keys=True, indent=4)
+    
     return Response(
         response=serialized_objects, 
         status=http_status.OK, 
@@ -94,25 +95,22 @@ def booking_record(user):
     )
 
 # TOOD: Route for adding a new booking
-@app.route("/bookings/new_booking", methods=["POST"])
+@app.route("/bookings/new", methods=["POST"])
 def new_booking():
     """ Make a new booking after a POST request """
-    response = request.get_json()
-    user = response.get("user")
-    date = response.get("date")
-    movie = response.get("movie")
+    json_response = request.get_json()
+    user = json_response.get("user")
+    date = json_response.get("date")
+    movie = json_response.get("movie")
 
     # add data:
-    try: 
-        bookings[user][date].append(movie)
-    except:
-        bookings[user][date] = [movie]
-
+    new_booking = Booking(user=user, data=date, movie=movie)
     # save data:
-    save_data(bookings) 
+    db.session.add(new_booking)
+    db.session.commit()
 
     return Response(
-      response=json.dumps({'status': "booked!"}),
+      response=booking_schema.dumps(new_booking.to_schema_dict(), sort_keys=True, indent=4),
       status=http_status.OK,
       mimetype='application/json'
    )   
