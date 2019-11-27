@@ -81,7 +81,7 @@ def booking_record(user):
     """ Return all booking instances of a certain user """
     query = Booking.query.filter_by(user=user).all()
     
-    if user_bookings is None:
+    if query is None:
         raise NotFound
 
     user_bookings = [result.to_schema_dict() for result in query]
