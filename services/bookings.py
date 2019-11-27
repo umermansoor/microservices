@@ -104,7 +104,7 @@ def new_booking():
     movie = json_response.get("movie")
 
     # add data:
-    new_booking = Booking(user=user, data=date, movie=movie)
+    new_booking = Booking(user=user, date=date, movie=movie)
     # save data:
     db.session.add(new_booking)
     db.session.commit()
@@ -113,12 +113,12 @@ def new_booking():
       response=booking_schema.dumps(new_booking.to_schema_dict(), sort_keys=True, indent=4),
       status=http_status.OK,
       mimetype='application/json'
-   )   
+   )
 
 def save_data(data):
     """ This method saves bookings to the json file """
     with open("{}/database/bookings.json".format(root_dir()), "w") as file:
-        json.dump(data, file, sort_keys=True, indent=4) 
+        json.dump(data, file, sort_keys=True, indent=4)
 
 # exeuted when this is called from the cmd
 if __name__ == "__main__":
