@@ -59,7 +59,7 @@ def hello():
         "uri": "/",
         "subresource_uris": {
             "bookings": "/bookings",
-            "booking": "/bookings/<username>"
+            "booking": "/bookings/<user>"
         }
     })
 
@@ -68,22 +68,23 @@ def hello():
 def booking_list():
     """ Return all booking instances """
     bookings = [booking.to_schema_dict() for booking in Booking.query.all()]
-    serialized_objects = bookings_schema.dumps(bookings)
-    return Response(response=serialized_objects, status=http_status.OK, mimetype="application/json")
+    serialized_objects = bookings_schema.dumps(bookings, sort_keys=True, indent=4)
+    return Response(
+        response=serialized_objects, 
+        status=http_status.OK, 
+        mimetype="application/json"
+    )
 
 # route to GET bookings json from a specific user
 @app.route("/bookings/<user>", methods=['GET'])
 def booking_record(user):
     """ Return all booking instances of a certain user """
-    
-    #TODO: query the database for bookings of this user
+    user_bookings = Booking.query.filter_by(user=user)
 
-    # treat exception of no booking found
-    if username is None:
+    if user_bookings is None:
         raise NotFound
 
-    schema =  BookingSchema(many=True)
-    serialized_objects = schema.dump(user_bookings)
+    serialized_objects = bookings_schema.dumps(user_bookings, sort_keys=True, indent=4)
 
     return Response(
     response=serialized_objects,
