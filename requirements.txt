@@ -1,3 +1,4 @@
 flask
 virtualenv
 flask-sqlalchemy
+marshmallow

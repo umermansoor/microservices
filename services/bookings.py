@@ -1,11 +1,11 @@
 # microframework for webapps
 from flask import Flask, request, Response
 # flask user defined services
-from services import root_dir, nice_json
+from __init__ import root_dir, nice_json
 # local data storage
 from flask_sqlalchemy import SQLAlchemy
 # data serialization
-from marshmallow import Schema
+from marshmallow import Schema, fields
 # to return HTTP status to incoming requests
 from http import HTTPStatus as http_status
 # read and dump as json data
@@ -48,6 +48,9 @@ class BookingSchema(Schema):
     date = fields.Date()
     movie = fields.Int()
 
+# instantiate the schema serializer
+booking_schema = BookingSchema()
+bookings_schema = BookingSchema(many=True)
 
 # add a route to GET the bookings json
 @app.route("/", methods=['GET'])
@@ -64,9 +67,9 @@ def hello():
 @app.route("/bookings", methods=['GET'])
 def booking_list():
     """ Return all booking instances """
-    bookings = [booking.to_schema_dict() for booking in db.query.all()]
-    schema =  BookingSchema(many=True)
-    return schema.dump(bookings) 
+    bookings = [booking.to_schema_dict() for booking in Booking.query.all()]
+    serialized_objects = bookings_schema.dumps(bookings)
+    return Response(response=serialized_objects, status=http_status.OK, mimetype="application/json")
 
 # route to GET bookings json from a specific user
 @app.route("/bookings/<user>", methods=['GET'])
@@ -80,7 +83,13 @@ def booking_record(user):
         raise NotFound
 
     schema =  BookingSchema(many=True)
-    return schema.dump(user_bookings)
+    serialized_objects = schema.dump(user_bookings)
+
+    return Response(
+    response=serialized_objects,
+    status=http_status.OK,
+    mimetype="application/json"
+    )
 
 # TOOD: Route for adding a new booking
 @app.route("/bookings/new_booking", methods=["POST"])
