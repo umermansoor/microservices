@@ -1,4 +1,4 @@
-from services import root_dir
+from auxiliar import root_dir
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 

@@ -1,4 +1,4 @@
-from services import root_dir, nice_json
+from auxiliar import root_dir, nice_json
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.exceptions import NotFound

@@ -1,14 +1,14 @@
-from bookings import db as booking_db
-from movies import db as movies_db
-from rewards import db as rewards_db
-from showtimes import db as showtimes_db
-from users import db as users_db
+from services.bookings import db as booking_db
+from services.movies import db as movies_db
+from services.rewards import db as rewards_db
+from services.showtimes import db as showtimes_db
+from services.users import db as users_db
 # Models
-from bookings import Book
-from movies import Movie
-from rewards import Reward
-from showtimes import Showtime
-from users import User
+from services.bookings import Book
+from services.movies import Movie
+from services.rewards import Reward
+from services.showtimes import Showtime
+from services.users import User
 # timestamp
 from datetime import date
 
