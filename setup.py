@@ -7,5 +7,5 @@ setup(name="microservices",
       platforms = ["any"],
       license = "BSD",
       packages = find_packages(),
-      install_requires = ["Flask>=0.10.1", "flask-sqlalchemy"],
+      install_requires = ["Flask>=0.10.1", "flask-sqlalchemy", "marshmallow", "virtualenv"],
       )
