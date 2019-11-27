@@ -1,8 +1,16 @@
-from services import root_dir, nice_json
+# microframework for webapps
 from flask import Flask, request, Response
+# flask user defined services
+from services import root_dir, nice_json
+# local data storage
 from flask_sqlalchemy import SQLAlchemy
+# data serialization
+from marshmallow import Schema
+# to return HTTP status to incoming requests
 from http import HTTPStatus as http_status
+# read and dump as json data
 import json
+# exception handling
 from werkzeug.exceptions import NotFound
 
 # instantiate a flask app and give it a name
@@ -16,14 +24,29 @@ db = SQLAlchemy(app)
 
 
 class Booking(db.Model):
-    """ This class maps the database booking model """
+    """ This class maps the database booking model using SQLAlchemy ORM"""
     id = db.Column(db.Integer, primary_key=True)
     user = db.Column(db.Integer, nullable=False)
-    date = db.Column(db.DateTime, nullable=False)
+    date = db.Column(db.Date, nullable=False)
     movie = db.Column(db.Integer, nullable=False)
 
     def __repr__(self):
+        """ to simple represent an instance of a booking """
         return f"<Booking: {self.user} @ {self.movie} @ {self.date}>"
+
+    def to_schema_dict(self):
+        """ 
+        return a simple represented dictionary in the format
+        expected by the serializer BookingSchema
+        """
+        return {"id":self.id, "user":self.user ,"date":self.date, "movie":self.movie}
+
+class BookingSchema(Schema):
+    """ Defines how a Booking instance will be serialized"""
+    id = fields.Int()
+    user = fields.Int()
+    date = fields.Date()
+    movie = fields.Int()
 
 
 # add a route to GET the bookings json
@@ -41,18 +64,25 @@ def hello():
 @app.route("/bookings", methods=['GET'])
 def booking_list():
     """ Return all booking instances """
-    return nice_json(bookings)
+    bookings = [booking.to_schema_dict() for booking in db.query.all()]
+    schema =  BookingSchema(many=True)
+    return schema.dump(bookings) 
 
 # route to GET bookings json from a specific user
-@app.route("/bookings/<username>", methods=['GET'])
-def booking_record(username):
+@app.route("/bookings/<user>", methods=['GET'])
+def booking_record(user):
     """ Return all booking instances of a certain user """
-    if username not in bookings:
+    
+    #TODO: query the database for bookings of this user
+
+    # treat exception of no booking found
+    if username is None:
         raise NotFound
 
-    return nice_json(bookings[username])
+    schema =  BookingSchema(many=True)
+    return schema.dump(user_bookings)
 
-# Route for adding a new booking
+# TOOD: Route for adding a new booking
 @app.route("/bookings/new_booking", methods=["POST"])
 def new_booking():
     """ Make a new booking after a POST request """

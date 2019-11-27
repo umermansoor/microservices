@@ -10,7 +10,7 @@ from services.rewards import Reward
 from services.showtimes import Showtime
 from services.users import User
 # timestamp
-from datetime import datetime
+from datetime import date
 
 # Clean previous databses
 booking_db.drop_all()
@@ -27,9 +27,9 @@ showtimes_db.create_all()
 users_db.create_all()
 
 # populate bookings
-b1 = Booking(user=1, date=datetime(2019, 11, 1), movie=1)
-b2 = Booking(user=2, date=datetime(2019, 11, 2), movie=2)
-b3 = Booking(user=3, date=datetime(2019, 11, 3), movie=3)
+b1 = Booking(user=1, date=date(2019, 11, 1), movie=1)
+b2 = Booking(user=2, date=date(2019, 11, 2), movie=2)
+b3 = Booking(user=3, date=date(2019, 11, 3), movie=3)
 bookings_db.session.add(b1)
 bookings_db.session.add(b2)
 bookings_db.session.add(b3)
@@ -56,9 +56,9 @@ rewards_db.session.commit()
 
 
 #populate showtimes
-s1 = Showtime(date=datetime(2019, 11, 1), movie=1)
-s2 = Showtime(date=datetime(2019, 11, 2), movie=2)
-s3 = Showtime(date=datetime(2019, 11, 3), movie=3)
+s1 = Showtime(date=date(2019, 11, 1), movie=1)
+s2 = Showtime(date=date(2019, 11, 2), movie=2)
+s3 = Showtime(date=date(2019, 11, 3), movie=3)
 showtimes_db.session.add(s1)
 showtimes_db.session.add(s2)
 showtimes_db.session.add(s3)

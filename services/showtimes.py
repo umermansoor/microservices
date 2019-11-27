@@ -18,7 +18,7 @@ class Showtime(db.Model):
     """ This class maps the database showtime model """
     id = db.Column(db.Integer, primary_key=True)
     movie = db.Column(db.Integer, nullable=False)
-    date = db.Column(db.DateTime, nullable=False)
+    date = db.Column(db.Date, nullable=False)
 
     def __repr__(self):
         return f"<Showtime: {self.movie} @ {self.date}>"
