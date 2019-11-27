@@ -1,7 +1,7 @@
 # microframework for webapps
 from flask import Flask, request, Response
 # flask user defined services
-from __init__ import root_dir, nice_json
+from auxiliar import root_dir, nice_json
 # local data storage
 from flask_sqlalchemy import SQLAlchemy
 # data serialization
