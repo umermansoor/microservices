@@ -79,11 +79,12 @@ def booking_list():
 @app.route("/bookings/<user>", methods=['GET'])
 def booking_record(user):
     """ Return all booking instances of a certain user """
-    user_bookings = Booking.query.filter_by(user=user)
-
+    query = Booking.query.filter_by(user=user).all()
+    
     if user_bookings is None:
         raise NotFound
 
+    user_bookings = [result.to_schema_dict() for result in query]
     serialized_objects = bookings_schema.dumps(user_bookings, sort_keys=True, indent=4)
 
     return Response(
