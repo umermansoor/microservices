@@ -32,7 +32,7 @@ class Booking(db.Model):
 
     def __repr__(self):
         """ to simple represent an instance of a booking """
-        return f"<Booking: {self.user} @ {self.movie} @ {self.date}>"
+        return f"<Booking: user:{self.user} movie: {self.movie} @ {self.date}>"
 
     def to_schema_dict(self):
         """
@@ -56,7 +56,7 @@ class BookingSchema(Schema):
 booking_schema = BookingSchema()
 bookings_schema = BookingSchema(many=True)
 
-# add a route to GET the bookings json
+# manuals for this service
 @app.route("/", methods=['GET'])
 def hello():
     return nice_json({
@@ -98,20 +98,18 @@ def booking_record(user):
     mimetype="application/json"
     )
 
-# TOOD: Route for adding a new booking
+# Route for adding a new booking
 @app.route("/bookings/new", methods=["POST"])
 def new_booking():
     """ Make a new booking after a POST request """
-    json_response = request.get_json()
-    user = json_response.get("user")
-    date = json_response.get("date")
-    movie = json_response.get("movie")
 
-    # add data:
-    new_booking = booking_schema.load(json_response)
+    new_booking = booking_schema.load(request.get_json())
     # save data:
     db.session.add(new_booking)
     db.session.commit()
+
+    #TODO: send new reward point for this user
+
 
     return Response(
       response=booking_schema.dumps(new_booking.to_schema_dict(), sort_keys=True, indent=4),
