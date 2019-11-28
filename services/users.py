@@ -1,4 +1,4 @@
-from auxiliar import root_dir, nice_json
+from os.path import dirname, realpath
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.exceptions import NotFound, ServiceUnavailable
@@ -7,8 +7,8 @@ import requests
 
 
 app = Flask(__name__)
-
-db_file = f"sqlite:///{root_dir()}/database/users.db"
+root_dir = dirname(realpath(__file__ + '/..'))
+db_file = f"sqlite:///{root_dir}/database/users.db"
 app.config['SQLALCHEMY_DATABASE_URI'] = db_file
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)

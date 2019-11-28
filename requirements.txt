@@ -2,3 +2,4 @@ flask
 virtualenv
 flask-sqlalchemy
 marshmallow
+requests

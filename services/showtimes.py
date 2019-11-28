@@ -1,7 +1,6 @@
+from os.path import dirname, realpath
 # microframework for webapps
 from flask import Flask, request, Response
-# flask user defined services
-from auxiliar import root_dir, nice_json
 # local data storage
 from flask_sqlalchemy import SQLAlchemy
 # data serialization
@@ -18,7 +17,8 @@ from datetime import date
 app = Flask(__name__)
 
 # load the database
-db_file = f"sqlite:///{root_dir()}/database/showtimes.db"
+root_dir = dirname(realpath(__file__ + '/..'))
+db_file = f"sqlite:///{root_dir}/database/showtimes.db"
 app.config['SQLALCHEMY_DATABASE_URI'] = db_file
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
