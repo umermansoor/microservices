@@ -5,14 +5,14 @@ from auxiliar import root_dir, nice_json
 # local data storage
 from flask_sqlalchemy import SQLAlchemy
 # data serialization
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, post_load
 # to return HTTP status to incoming requests
 from http import HTTPStatus as http_status
 # read and dump as json data
 import json
 # exception handling
 from werkzeug.exceptions import NotFound
-
+from datetime import date as datetime_date
 # instantiate a flask app and give it a name
 app = Flask(__name__)
 
@@ -35,7 +35,7 @@ class Booking(db.Model):
         return f"<Booking: {self.user} @ {self.movie} @ {self.date}>"
 
     def to_schema_dict(self):
-        """ 
+        """
         return a simple represented dictionary in the format
         expected by the serializer BookingSchema
         """
@@ -47,6 +47,10 @@ class BookingSchema(Schema):
     user = fields.Int()
     date = fields.Date()
     movie = fields.Int()
+
+    @post_load
+    def make_booking(self, data, **kwargs):
+        return Booking(**data)
 
 # instantiate the schema serializer
 booking_schema = BookingSchema()
@@ -69,10 +73,10 @@ def booking_list():
     """ Return all booking instances """
     bookings = [booking.to_schema_dict() for booking in Booking.query.all()]
     serialized_objects = bookings_schema.dumps(bookings, sort_keys=True, indent=4)
-    
+
     return Response(
-        response=serialized_objects, 
-        status=http_status.OK, 
+        response=serialized_objects,
+        status=http_status.OK,
         mimetype="application/json"
     )
 
@@ -81,7 +85,7 @@ def booking_list():
 def booking_record(user):
     """ Return all booking instances of a certain user """
     query = Booking.query.filter_by(user=user).all()
-    
+
     if query is None:
         raise NotFound
 
@@ -104,7 +108,7 @@ def new_booking():
     movie = json_response.get("movie")
 
     # add data:
-    new_booking = Booking(user=user, date=date, movie=movie)
+    new_booking = booking_schema.load(json_response)
     # save data:
     db.session.add(new_booking)
     db.session.commit()
@@ -114,11 +118,6 @@ def new_booking():
       status=http_status.OK,
       mimetype='application/json'
    )
-
-def save_data(data):
-    """ This method saves bookings to the json file """
-    with open("{}/database/bookings.json".format(root_dir()), "w") as file:
-        json.dump(data, file, sort_keys=True, indent=4)
 
 # exeuted when this is called from the cmd
 if __name__ == "__main__":
