@@ -1,6 +1,6 @@
 from os.path import dirname, realpath
 # microframework for webapps
-from flask import Flask, request, Response
+from flask import Flask, request, Response, abort
 # local data storage
 from flask_sqlalchemy import SQLAlchemy
 # data serialization
@@ -39,11 +39,10 @@ class Booking(db.Model):
         return a simple represented dictionary in the format
         expected by the serializer BookingSchema
         """
-        return {"id":self.id, "user":self.user ,"date":self.date, "movie":self.movie}
+        return {"user":self.user ,"date":self.date, "movie":self.movie}
 
 class BookingSchema(Schema):
     """ Defines how a Booking instance will be serialized"""
-    id = fields.Int()
     user = fields.Int()
     date = fields.Date()
     movie = fields.Int()
@@ -59,7 +58,7 @@ bookings_schema = BookingSchema(many=True)
 # manuals for this service
 @app.route("/", methods=['GET'])
 def hello():
-    return nice_json({
+    return json.dumps({
         "uri": "/",
         "subresource_uris": {
             "bookings": "/bookings",
@@ -86,8 +85,9 @@ def booking_record(user):
     """ Return all booking instances of a certain user """
     query = Booking.query.filter_by(user=user).all()
 
-    if query is None:
-        raise NotFound
+    if not query:
+        raise abort(404, description="Resource not found")
+
 
     user_bookings = [result.to_schema_dict() for result in query]
     serialized_objects = bookings_schema.dumps(user_bookings, sort_keys=True, indent=4)
