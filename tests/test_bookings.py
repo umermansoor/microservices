@@ -1,3 +1,4 @@
+from flask_testing  import TestCase as FlaskTestingCase
 import unittest
 import requests
 import json
@@ -7,24 +8,29 @@ from datetime import date as datetime_date
 bookings.testing = True
 
 
-class TestBookingService(unittest.TestCase):
+class TestBookingService(FlaskTestingCase):
+    
+    def create_app(self):
+        app = Flask(__name__)
+        app.config['TESTING'] = True
+        #app.config["SQLALCHEMY_DATABASE_URI"] = ""
+        # Dynamically bind SQLAlchemy to application
+        bookings.db.init_app(app)
+        app.app_context().push() # this does the binding
+        return app
+    
+    
     def setUp(self):
         self.url = "http://localhost:5003/bookings"
         self.post_url = "http://localhost:5003/bookings/new"
         self.new_booking_json = """{"date": "2019-11-12", "movie": 5, "user": 4}"""
-        self.app = Flask(__name__)
-        bookings.db.init_app(self.app)
-        with self.app.app_context():
-            self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-            bookings.db.create_all()
-            self.populate_db()
+        bookings.db.create_all()
+        self.populate_db()
 
     def tearDown(self):
         """ Ensures that the database is emptied for next unit test """
-        self.app = Flask(__name__)
-        bookings.db.init_app(self.app)
-        with self.app.app_context():
-            bookings.db.drop_all()
+        bookings.db.session.remove()
+        bookings.db.drop_all()
 
     def test_booking_record(self):
         """ Test /bookings/<username> """
