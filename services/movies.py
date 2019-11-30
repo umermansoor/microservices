@@ -4,7 +4,7 @@ from flask import Flask, request, Response
 # local data storage
 from flask_sqlalchemy import SQLAlchemy
 # data serialization
-from marshmallow import Schema, fields, post_load
+from marshmallow import Schema, fields, post_load, ValidationError
 # to return HTTP status to incoming requests
 from http import HTTPStatus as http_status
 # read and dump as json data
@@ -33,23 +33,21 @@ class Movie(db.Model):
     def __repr__(self):
         return f"<Movie: {self.title}>"
 
-    def to_schema_dict(self):
-        """
-        return a simple represented dictionary in the format
-        expected by the serializer MovieSchema
-        """
-        return {"title":self.title, "director":self.director ,"rating":self.rating}
-
 
 class MovieSchema(Schema):
     """ Defines how a Movie instance will be serialized"""
-    id = fields.String()
-    title = fields.String()
+    class Meta:
+         """ Add meta attributes here """
+         ordered = True # The output will be ordered according to the order that the fields are defined in the class.
+
     director = fields.String()
-    rating = fields.String()
+    id = fields.Int()
+    rating = fields.Int()
+    title = fields.String()
 
     @post_load
     def make_movie(self, data, **kwargs):
+        """ Deals with deserialization"""
         return Movie(**data)
 
 # instantiate the schema serializer
@@ -59,7 +57,7 @@ movies_schema = MovieSchema(many=True)
 # instructions if you hit '/'
 @app.route("/", methods=['GET'])
 def hello():
-    return nice_json({
+    return json.dumps({
         "uri": "/",
         "subresource_uris": {
             "movies": "/movies",
@@ -70,14 +68,13 @@ def hello():
 # route to get a movie by its id
 @app.route("/movies/<id>", methods=['GET'])
 def movie_info(id):
-    query = Movie.query.get(id)
+    """ GET a movie by id"""
+    movie = Movie.query.get(id)
 
-    if query is None:
+    if not movie:
         raise NotFound
 
-    movie = query.to_schema_dict()
-
-    serialized_object = bookings_schema.dumps(movie, sort_keys=True, indent=4)
+    serialized_object = movie_schema.dumps(movie, sort_keys=True, indent=4)
 
     return Response(
     response=serialized_object,
@@ -85,12 +82,11 @@ def movie_info(id):
     mimetype="application/json"
     )
 
-
 # add a route to GET all movies
 @app.route("/movies", methods=['GET'])
 def movie_list():
     """ Return all Movie instances """
-    movies = [movie.to_schema_dict() for movie in Movie.query.all()]
+    movies = Movies.query.all()
     serialized_objects = movies_schema.dumps(movies, sort_keys=True, indent=4)
 
     return Response(
@@ -103,18 +99,21 @@ def movie_list():
 @app.route("/movies/new", methods=["POST"])
 def new_movie():
     """ Make a new movie after a POST request """
-
-    new_movie = movie_schema.load(request.get_json())
+    new_movie = ''
+    try:
+        new_movie = movie_schema.loads(request.data)
+    except ValidationError as err:
+        pass
+        #TODO: send a exception  message
     # save data:
     db.session.add(new_movie)
     db.session.commit()
 
     return Response(
-      response=movie_schema.dumps(new_movie.to_schema_dict(), sort_keys=True, indent=4),
+      response=movie_schema.dumps(new_movie, sort_keys=True, indent=4),
       status=http_status.OK,
       mimetype='application/json'
-   )
-
+      )
 
 # exeuted when this is called from the cmd
 if __name__ == "__main__":

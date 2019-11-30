@@ -1,71 +1,81 @@
 import unittest
 import requests
-
+import json
+from flask import Flask
+from services import movies
+movies.testing = True
 
 class TestMoviesService(unittest.TestCase):
     def setUp(self):
-        self.url = "http://127.0.0.1:5001/movies"
+        """ Get everything ready for tests """
+        self.url = "http://localhost:5001/movies"
+        self.post_url = "http://localhost:5001/movies/new"
+        self.new_movie_json = """{"director": "Alfonso Cuaron", "id": 4, "rating": 10, "title": "Children of Men"}"""
+        self.app = Flask(__name__)
+        self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        movies.db.init_app(self.app)
+        with self.app.app_context():
+          
+          movies.db.create_all()
+          self.populate_db()
 
-    def test_all_movie_records(self):
-        """ Test /movies/<movieid> for all known movies"""
-        for movieid, expected in GOOD_RESPONSES.items():
-            expected['uri'] = "/movies/{}".format(movieid)
-            reply = requests.get("{}/{}".format(self.url, movieid))
-            actual_reply = reply.json()
-            self.assertEqual( set(actual_reply.items()), set(expected.items()))
+    def tearDown(self):
+        """ Ensures that the database is emptied for next unit test """
+        self.app = Flask(__name__)
+        movies.db.init_app(self.app)
+        with self.app.app_context():
+            movies.db.session.expunge_all()
+            movies.db.drop_all()
+
+    def test_booking_record(self):
+      """ Test if serialization and 
+          deserialization are working properly
+      """
+      movie = movies.Movie.query.get(1)
+      serialized_book = movies.movie_schema.dumps(movie)
+      with movies.app.test_client() as get_movie_route:
+        response = requests.get(f"{self.url}/{movie.id}")
+        response_json = json.dumps(response.json())
+        response_movie = movies.movie_schema.loads(response_json)
+        self.assertEqual(self.fields_dict(response_movie), self.fields_dict(movie))
+    
+    def test_new_movie(self):
+      """ Tests the creation of a new Movie"""
+      with movies.app.test_client() as new_movie_route:
+          # send data as POST form to endpoint:
+          response = new_movie_route.post(self.post_url, 
+                                      data=self.new_movie_json)
+
+          # check result from server with expected fake booking
+          self.assertEqual(json.dumps(response.get_json()), self.new_movie_json)
+
 
     def test_not_found(self):
-        invalid_movie_id = "b18f"
-        actual_reply = requests.get("{}/{}".format(self.url, invalid_movie_id))
-        self.assertEqual(actual_reply.status_code, 404,
-                    "Got {} but expected 404".format(
-                        actual_reply.status_code))
+      """ test GET a invalid movie """
+      invalid_movie = "999"
+      with movies.app.test_client() as invalid_movie_route: 
+        response = invalid_movie_route.get(f"{self.url}/{invalid_movie}")
+        self.assertEqual(response.status_code, 404,
+                             "Got {actual_reply.status_code} but expected 404")
+        
+    def populate_db(self):
+        """ Populates the database """
+        m1 = movies.Movie(rating=10, title="Boyhood", director="Richard Linklater")
+        m2 = movies.Movie(rating=8, title="Before Sunset", director="Richard Linklater")
+        m3 = movies.Movie(rating=9, title="Waking Life", director="Richard Linklater")
 
-
-GOOD_RESPONSES = {
-  "720d006c-3a57-4b6a-b18f-9b713b073f3c": {
-    "title": "The Good Dinosaur",
-    "rating": 7.4,
-    "director": "Peter Sohn",
-    "id": "720d006c-3a57-4b6a-b18f-9b713b073f3c"
-  },
-  "a8034f44-aee4-44cf-b32c-74cf452aaaae": {
-    "title": "The Martian",
-    "rating": 8.2,
-    "director": "Ridley Scott",
-    "id": "a8034f44-aee4-44cf-b32c-74cf452aaaae"
-  },
-  "96798c08-d19b-4986-a05d-7da856efb697": {
-    "title": "The Night Before",
-    "rating": 7.4,
-    "director": "Jonathan Levine",
-    "id": "96798c08-d19b-4986-a05d-7da856efb697"
-  },
-  "267eedb8-0f5d-42d5-8f43-72426b9fb3e6": {
-    "title": "Creed",
-    "rating": 8.8,
-    "director": "Ryan Coogler",
-    "id": "267eedb8-0f5d-42d5-8f43-72426b9fb3e6"
-  },
-  "7daf7208-be4d-4944-a3ae-c1c2f516f3e6": {
-    "title": "Victor Frankenstein",
-    "rating": 6.4,
-    "director": "Paul McGuigan",
-    "id": "7daf7208-be4d-4944-a3ae-c1c2f516f3e6"
-  },
-  "276c79ec-a26a-40a6-b3d3-fb242a5947b6": {
-    "title": "The Danish Girl",
-    "rating": 5.3,
-    "director": "Tom Hooper",
-    "id": "276c79ec-a26a-40a6-b3d3-fb242a5947b6"
-  },
-  "39ab85e5-5e8e-4dc5-afea-65dc368bd7ab": {
-    "title": "Spectre",
-    "rating": 7.1,
-    "director": "Sam Mendes",
-    "id": "39ab85e5-5e8e-4dc5-afea-65dc368bd7ab"
-  }
-}
+        movies.db.session.add(m1)
+        movies.db.session.add(m2)
+        movies.db.session.add(m3)
+        movies.db.session.commit()
+    
+    def fields_dict(self, object):
+      """ Get an instane of a model and 
+          return a dict with fields and values
+      """
+      column_keys = object.__table__.columns.keys()
+      values_dict = dict( (column, getattr(object, column)) for column in column_keys )
+      return values_dict
 
 if __name__ == "__main__":
     unittest.main()

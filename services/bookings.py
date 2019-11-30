@@ -1,17 +1,18 @@
 from os.path import dirname, realpath
 # microframework for webapps
-from flask import Flask, request, Response, abort, jsonify
+from flask import Flask, request, Response, abort
 # local data storage
 from flask_sqlalchemy import SQLAlchemy
 # data serialization
 from marshmallow import Schema, fields, post_load, ValidationError
 # to return HTTP status to incoming requests
 from http import HTTPStatus as http_status
+# reads and dumps json data
+import json
 # exception handling
 from werkzeug.exceptions import NotFound
 from datetime import date as datetime_date
-import logging
-from logging.handlers import RotatingFileHandler
+
 # instantiate a flask app and give it a name
 app = Flask(__name__)
 
@@ -34,19 +35,15 @@ class Booking(db.Model):
         """ to simple represent an instance of a booking """
         return f"<Booking: user:{self.user} movie: {self.movie} @ {self.date}>"
 
-    def to_schema_dict(self):
-        """
-        return a simple represented dictionary in the format
-        expected by the serializer BookingSchema
-        """
-        return {"user":self.user ,"date":self.date, "movie":self.movie}
 
 class BookingSchema(Schema):
     """ Defines how a Booking instance will be serialized"""
     class Meta:
          """ Add meta attributes here """
          ordered = True #The output will be ordered according to the order that the fields are defined in the class.
+
     date = fields.Date()
+    id = fields.Int(required=False)
     movie = fields.Int()
     user = fields.Int()
 
@@ -87,13 +84,11 @@ def booking_list():
 @app.route("/bookings/<user>", methods=['GET'])
 def booking_record(user):
     """ Return all booking instances of a certain user """
-    query = Booking.query.filter_by(user=user).all()
+    user_bookings = Booking.query.filter_by(user=user).all()
 
-    if not query:
+    if not user_bookings:
         raise abort(404, description="Resource not found")
 
-
-    user_bookings = [result.to_schema_dict() for result in query]
     serialized_objects = bookings_schema.dumps(user_bookings, sort_keys=True, indent=4)
 
     return Response(
@@ -131,7 +126,4 @@ def new_booking():
 
 # exeuted when this is called from the cmd
 if __name__ == "__main__":
-    handler = RotatingFileHandler('foo.log', maxBytes=10000, backupCount=1)
-    handler.setLevel(logging.INFO)
-    app.logger.addHandler(handler)
     app.run(port=5003, debug=True)
