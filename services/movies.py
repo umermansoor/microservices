@@ -53,8 +53,8 @@ class MovieSchema(Schema):
         return Movie(**data)
 
 # instantiate the schema serializer
-movie_schema = BookingSchema()
-movies_schema = BookingSchema(many=True)
+movie_schema = MovieSchema()
+movies_schema = MovieSchema(many=True)
 
 # instructions if you hit '/'
 @app.route("/", methods=['GET'])

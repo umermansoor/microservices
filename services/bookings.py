@@ -1,17 +1,17 @@
 from os.path import dirname, realpath
 # microframework for webapps
-from flask import Flask, request, Response, abort
+from flask import Flask, request, Response, abort, jsonify
 # local data storage
 from flask_sqlalchemy import SQLAlchemy
 # data serialization
-from marshmallow import Schema, fields, post_load
+from marshmallow import Schema, fields, post_load, ValidationError
 # to return HTTP status to incoming requests
 from http import HTTPStatus as http_status
-# read and dump as json data
-import json
 # exception handling
 from werkzeug.exceptions import NotFound
 from datetime import date as datetime_date
+import logging
+from logging.handlers import RotatingFileHandler
 # instantiate a flask app and give it a name
 app = Flask(__name__)
 
@@ -43,12 +43,16 @@ class Booking(db.Model):
 
 class BookingSchema(Schema):
     """ Defines how a Booking instance will be serialized"""
-    user = fields.Int()
+    class Meta:
+         """ Add meta attributes here """
+         ordered = True #The output will be ordered according to the order that the fields are defined in the class.
     date = fields.Date()
     movie = fields.Int()
+    user = fields.Int()
 
     @post_load
     def make_booking(self, data, **kwargs):
+        """ Deals with deserialization """
         return Booking(**data)
 
 # instantiate the schema serializer
@@ -70,7 +74,7 @@ def hello():
 @app.route("/bookings", methods=['GET'])
 def booking_list():
     """ Return all booking instances """
-    bookings = [booking.to_schema_dict() for booking in Booking.query.all()]
+    bookings = Booking.query.all()
     serialized_objects = bookings_schema.dumps(bookings, sort_keys=True, indent=4)
 
     return Response(
@@ -102,8 +106,15 @@ def booking_record(user):
 @app.route("/bookings/new", methods=["POST"])
 def new_booking():
     """ Make a new booking after a POST request """
+    new_booking = ''
+    try:
+        #TODO: why the fuck request.get_json() return a python 
+        # dict instead of a json string? bug?
+        new_booking = booking_schema.loads(request.data)
+    except ValidationError as err:
+        pass
+        #TODO: send a exception  message
 
-    new_booking = booking_schema.load(request.get_json())
     # save data:
     db.session.add(new_booking)
     db.session.commit()
@@ -112,11 +123,15 @@ def new_booking():
 
 
     return Response(
-      response=booking_schema.dumps(new_booking.to_schema_dict(), sort_keys=True, indent=4),
+      response=booking_schema.dumps(new_booking, sort_keys=True, indent=4),
       status=http_status.OK,
       mimetype='application/json'
-   )
+      )
+   
 
 # exeuted when this is called from the cmd
 if __name__ == "__main__":
+    handler = RotatingFileHandler('foo.log', maxBytes=10000, backupCount=1)
+    handler.setLevel(logging.INFO)
+    app.logger.addHandler(handler)
     app.run(port=5003, debug=True)
