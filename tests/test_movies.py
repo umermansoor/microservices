@@ -1,31 +1,33 @@
-import unittest
+from flask_testing  import TestCase as FlaskTestingCase
+from unittest import main
 import requests
 import json
 from flask import Flask
 from services import movies
 movies.testing = True
 
-class TestMoviesService(unittest.TestCase):
+class TestMoviesService(FlaskTestingCase):
+
+    def create_app(self):
+        """ Dynamically bind a fake  database to real application """
+        app = Flask(__name__)
+        app.config['TESTING'] = True
+        movies.db.init_app(app)
+        app.app_context().push() # this does the binding
+        return app
+
     def setUp(self):
         """ Get everything ready for tests """
         self.url = "http://localhost:5001/movies"
         self.post_url = "http://localhost:5001/movies/new"
         self.new_movie_json = """{"director": "Alfonso Cuaron", "id": 4, "rating": 10, "title": "Children of Men"}"""
-        self.app = Flask(__name__)
-        self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-        movies.db.init_app(self.app)
-        with self.app.app_context():
-          
-          movies.db.create_all()
-          self.populate_db()
+        movies.db.create_all()
+        self.populate_db()
 
     def tearDown(self):
         """ Ensures that the database is emptied for next unit test """
-        self.app = Flask(__name__)
-        movies.db.init_app(self.app)
-        with self.app.app_context():
-            movies.db.session.expunge_all()
-            movies.db.drop_all()
+        movies.db.session.remove()
+        movies.db.drop_all()
 
     def test_booking_record(self):
       """ Test if serialization and 
@@ -78,4 +80,4 @@ class TestMoviesService(unittest.TestCase):
       return values_dict
 
 if __name__ == "__main__":
-    unittest.main()
+    main()

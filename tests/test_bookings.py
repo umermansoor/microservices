@@ -11,14 +11,13 @@ bookings.testing = True
 class TestBookingService(FlaskTestingCase):
     
     def create_app(self):
+        """ Dynamically bind a fake  database to real application """
         app = Flask(__name__)
         app.config['TESTING'] = True
-        #app.config["SQLALCHEMY_DATABASE_URI"] = ""
-        # Dynamically bind SQLAlchemy to application
         bookings.db.init_app(app)
         app.app_context().push() # this does the binding
+        # now we can test frely on this app
         return app
-    
     
     def setUp(self):
         self.url = "http://localhost:5003/bookings"
