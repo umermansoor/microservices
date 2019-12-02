@@ -1,71 +1,89 @@
-import unittest
+from flask_testing  import TestCase as FlaskTestingCase
+from unittest import main
 import requests
+import json
+from flask import Flask
+from services import showtimes
+from datetime import date as datetime_date
+showtimes.testing = True
 
+class TestMoviesService(FlaskTestingCase):
+    """ Tests for the Movies service """
+    def create_app(self):
+        """ Dynamically bind a fake  database to real application """
+        app = Flask(__name__)
+        app.config['TESTING'] = True
+        showtimes.db.init_app(app)
+        app.app_context().push() # this does the binding
+        return app
 
-class TestShowTimesService(unittest.TestCase):
     def setUp(self):
-        self.url = "http://127.0.0.1:5002/showtimes"
+        """ Get everything ready for tests """
+        self.url = "http://localhost:5002/showtimes"
+        self.post_url = "http://localhost:5002/showtimes/new"
+        self.new_showtime_json = """{"date": "2020-01-01", "movie": 1}"""
+        showtimes.db.create_all()
+        self.populate_db()
 
-    def test_showtimes_records(self):
-        """ Test /showtimes/<date> for all known showtimes"""
-        for date, expected in GOOD_RESPONSES.items():
-            reply = requests.get("{}/{}".format(self.url, date))
-            actual_reply = reply.json()
+    def tearDown(self):
+        """ Ensures that the database is emptied for next unit test """
+        showtimes.db.session.remove()
+        showtimes.db.drop_all()
 
-            self.assertEqual(len(actual_reply), len(expected),
-                             "Got {} showtimes but expected {}".format(
-                                 len(actual_reply), len(expected)
-                             ))
+    def test_showtime_record(self):
+      """ Test if (de)serialization is working properly
+      """
+      showtime = showtimes.Showtime.query.get(1)
+      with showtimes.app.test_client() as get_showtime_route:
+        response = requests.get(f"{self.url}/{str(showtime.date)}")
+        response_json = json.dumps(response.json())
+        # we may get multiple showtimes in reponse but we only want the first
+        response_showtime = showtimes.showtimes_schema.loads(response_json)[0]
+        self.assertEqual(showtime.date, response_showtime.date)
+        self.assertEqual(showtime.movie, response_showtime.movie)
+    
+    def test_new_showtime(self):
+        """ Tests the creation of a new Showtime"""
 
-            # Use set because the order doesn't matter
-            self.assertEqual(set(actual_reply), set(expected),
-                             "Got {} but expected {}".format(
-                                 actual_reply, expected))
+        fake_showtime = showtimes.showtime_schema.loads(self.new_showtime_json)
+        with showtimes.app.test_client() as new_showtime_route:
+            # send data as POST form to endpoint:
+            response = new_showtime_route.post(self.post_url, data=self.new_showtime_json)
 
+            # check result from server with expected fake booking
+            response_showtime_json = json.dumps(response.get_json())
+            response_showtime = showtimes.showtime_schema.loads(response_showtime_json)
+
+            self.assertEqual(fake_showtime.date, response_showtime.date)
+            self.assertEqual(fake_showtime.movie, response_showtime.movie)
+    
 
     def test_not_found(self):
-        """ Test /showtimes/<date> for non-existent dates"""
-        invalid_date = 20490101
-        actual_reply = requests.get("{}/{}".format(self.url, invalid_date))
-        self.assertEqual(actual_reply.status_code, 404,
-                         "Got {} but expected 404".format(
-                             actual_reply.status_code))
+      """ GET a invalid showtime """
+      invalid_showtime = "2018-01-01"
+      with showtimes.app.test_client() as invalid_showtime_route: 
+        response = invalid_showtime_route.get(f"{self.url}/{invalid_showtime}")
+        self.assertEqual(response.status_code, 404,
+                             "Got {actual_reply.status_code} but expected 404")
+        
+    def populate_db(self):
+        """ Populates the database """
+        s1 = showtimes.Showtime(date=datetime_date(2019, 11, 1), movie=1)
+        s2 = showtimes.Showtime(date=datetime_date(2019, 11, 2), movie=2)
+        s3 = showtimes.Showtime(date=datetime_date(2019, 11, 3), movie=3)
 
-GOOD_RESPONSES = {
-    "20151130": [
-        "720d006c-3a57-4b6a-b18f-9b713b073f3c",
-        "a8034f44-aee4-44cf-b32c-74cf452aaaae",
-        "39ab85e5-5e8e-4dc5-afea-65dc368bd7ab"
-    ],
-    "20151201": [
-        "267eedb8-0f5d-42d5-8f43-72426b9fb3e6",
-        "7daf7208-be4d-4944-a3ae-c1c2f516f3e6",
-        "39ab85e5-5e8e-4dc5-afea-65dc368bd7ab",
-        "a8034f44-aee4-44cf-b32c-74cf452aaaae"
-    ],
-    "20151202": [
-        "a8034f44-aee4-44cf-b32c-74cf452aaaae",
-        "96798c08-d19b-4986-a05d-7da856efb697",
-        "39ab85e5-5e8e-4dc5-afea-65dc368bd7ab",
-        "276c79ec-a26a-40a6-b3d3-fb242a5947b6"
-    ],
-    "20151203": [
-        "720d006c-3a57-4b6a-b18f-9b713b073f3c",
-        "39ab85e5-5e8e-4dc5-afea-65dc368bd7ab"
-    ],
-    "20151204": [
-        "96798c08-d19b-4986-a05d-7da856efb697",
-        "a8034f44-aee4-44cf-b32c-74cf452aaaae",
-        "7daf7208-be4d-4944-a3ae-c1c2f516f3e6"
-    ],
-    "20151205": [
-        "96798c08-d19b-4986-a05d-7da856efb697",
-        "a8034f44-aee4-44cf-b32c-74cf452aaaae",
-        "7daf7208-be4d-4944-a3ae-c1c2f516f3e6",
-        "276c79ec-a26a-40a6-b3d3-fb242a5947b6",
-        "39ab85e5-5e8e-4dc5-afea-65dc368bd7ab"
-    ]
-}
+        showtimes.db.session.add(s1)
+        showtimes.db.session.add(s2)
+        showtimes.db.session.add(s3)
+        showtimes.db.session.commit()
+    
+    def fields_dict(self, object):
+      """ Get an instane of a model and 
+          return a dict with fields and values
+      """
+      column_keys = object.__table__.columns.keys()
+      values_dict = dict( (column, getattr(object, column)) for column in column_keys )
+      return values_dict
 
 if __name__ == "__main__":
-    unittest.main()
+    main()

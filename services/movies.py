@@ -65,6 +65,19 @@ def hello():
         }
     })
 
+# add a route to GET showtimes
+@app.route("/showtimes", methods=['GET'])
+def showtimes_list():
+    """ Return all booking instances """
+    movies = Movie.query.all()
+    serialized_objects = movies_schema.dumps(movies, sort_keys=True, indent=4)
+
+    return Response(
+        response=serialized_objects,
+        status=http_status.OK,
+        mimetype="application/json"
+    )
+
 # route to get a movie by its id
 @app.route("/movies/<id>", methods=['GET'])
 def movie_info(id):
@@ -86,7 +99,7 @@ def movie_info(id):
 @app.route("/movies", methods=['GET'])
 def movie_list():
     """ Return all Movie instances """
-    movies = Movies.query.all()
+    movies = Movie.query.all()
     serialized_objects = movies_schema.dumps(movies, sort_keys=True, indent=4)
 
     return Response(

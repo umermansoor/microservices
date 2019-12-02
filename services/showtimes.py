@@ -11,7 +11,7 @@ from http import HTTPStatus as http_status
 import json
 # exception handling
 from werkzeug.exceptions import NotFound
-from datetime import date
+from datetime import date as datetime_date
 
 # instantiate a flask app and give it a name
 app = Flask(__name__)
@@ -26,39 +26,37 @@ db = SQLAlchemy(app)
 
 class Showtime(db.Model):
     """ This class maps the database showtime model """
+    date = db.Column(db.Date, nullable=False)
     id = db.Column(db.Integer, primary_key=True)
     movie = db.Column(db.Integer, nullable=False)
-    date = db.Column(db.Date, nullable=False)
 
     def __repr__(self):
-        return f"<Showtime: {self.movie} @ {self.date}>"
-
-    def to_schema_dict(self):
-        """
-        return a simple represented dictionary in the format
-        expected by the serializer MovieSchema
-        """
-        return {"id":self.id, "movie":self.movie ,"date":self.date}
+        return f"<Showtime: movie {self.movie} on {self.date}>"
 
 
 class ShowtimeSchema(Schema):
     """ Defines how a Showtime instance will be serialized"""
-    id = fields.String()
-    movie = fields.Int()
+    
+    class Meta:
+         """ Add meta attributes here """
+         ordered = True # The output will be ordered according to the order that the fields are defined in the class.
+
     date = fields.Date()
+    id = fields.Int(requeired=False)
+    movie = fields.Int()
 
     @post_load
     def make_showtime(self, data, **kwargs):
         return Showtime(**data)
 
 # instantiate the schema serializer
-showtimechema = ShowtimeSchema()
-showtimeschema = ShowtimeSchema(many=True)
+showtime_schema = ShowtimeSchema()
+showtimes_schema = ShowtimeSchema(many=True)
 
 # add root route
 @app.route("/", methods=['GET'])
 def hello():
-    return nice_json({
+    return json.dumps({
         "uri": "/",
         "subresource_uris": {
             "showtimes": "/showtimes",
@@ -66,12 +64,11 @@ def hello():
         }
     })
 
-
 # add a route to GET showtimes
 @app.route("/showtimes", methods=['GET'])
 def showtimes_list():
     """ Return all booking instances """
-    showtimes = [showtime.to_schema_dict() for showtime in Showtime.query.all()]
+    showtimes = Showtime.query.all()
     serialized_objects = showtimes_schema.dumps(showtimes, sort_keys=True, indent=4)
 
     return Response(
@@ -84,13 +81,13 @@ def showtimes_list():
 # add a route to GET showtimes for a certain date
 @app.route("/showtimes/<date>", methods=['GET'])
 def showtimes_record(date):
-    date = date(*map(int, date_string.split('-')))
-    query = Showtime.query.filter_by(date=date).all()
+    # maps a string to a datetime.date object
+    date_object = datetime_date(*map(int, date.split('-')))
+    showtimes = Showtime.query.filter_by(date=date_object).all()
 
-    if not query:
+    if not showtimes:
         raise NotFound
 
-    showtimes = [result.to_schema_dict() for result in query]
     serialized_objects = showtimes_schema.dumps(showtimes, sort_keys=True, indent=4)
 
     return Response(
@@ -98,7 +95,27 @@ def showtimes_record(date):
     status=http_status.OK,
     mimetype="application/json"
     )
-    
+
+# Route for adding a new movie
+@app.route("/showtimes/new", methods=["POST"])
+def new_movie():
+    """ Make a new movie after a POST request """
+    new_showtime = None
+    try:
+        new_showtime = showtime_schema.loads(request.data)
+    except ValidationError as err:
+        pass
+        #TODO: send a exception  message
+    # save data:
+    db.session.add(new_showtime)
+    db.session.commit()
+
+    return Response(
+      response=showtime_schema.dumps(new_showtime, sort_keys=True, indent=4),
+      status=http_status.OK,
+      mimetype='application/json'
+      )
+
 # exeuted when this is called from the cmd
 if __name__ == "__main__":
     app.run(port=5002, debug=True)

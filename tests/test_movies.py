@@ -29,12 +29,11 @@ class TestMoviesService(FlaskTestingCase):
         movies.db.session.remove()
         movies.db.drop_all()
 
-    def test_booking_record(self):
+    def test_movie_record(self):
       """ Test if serialization and 
           deserialization are working properly
       """
       movie = movies.Movie.query.get(1)
-      serialized_book = movies.movie_schema.dumps(movie)
       with movies.app.test_client() as get_movie_route:
         response = requests.get(f"{self.url}/{movie.id}")
         response_json = json.dumps(response.json())
@@ -48,7 +47,7 @@ class TestMoviesService(FlaskTestingCase):
           response = new_movie_route.post(self.post_url, 
                                       data=self.new_movie_json)
 
-          # check result from server with expected fake booking
+          # check result from server with expected fake movie
           self.assertEqual(json.dumps(response.get_json()), self.new_movie_json)
 
 

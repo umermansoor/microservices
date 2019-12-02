@@ -34,12 +34,10 @@ class TestBookingService(FlaskTestingCase):
     def test_booking_record(self):
         """ Test /bookings/<username> """
         booking = bookings.Booking.query.get(1)
-        serialized_book = bookings.booking_schema.dumps(booking)
         with bookings.app.test_client() as get_booking_route:
             response = requests.get(f"{self.url}/{booking.user}")
             response_json = json.dumps(response.json()) # blame python json for this ugly shit
             response_booking = bookings.bookings_schema.loads(response_json)[0] # tough response is in a list, it contains only one object
-            self.assertEqual(booking.date, response_booking.date)
             self.assertEqual(booking.date, response_booking.date)
             self.assertEqual(booking.movie, response_booking.movie)
             self.assertEqual(booking.user, response_booking.user)
