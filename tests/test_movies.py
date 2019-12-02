@@ -12,6 +12,8 @@ class TestMoviesService(FlaskTestingCase):
         """ Dynamically bind a fake  database to real application """
         app = Flask(__name__)
         app.config['TESTING'] = True
+        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///:memory:"
         movies.db.init_app(app)
         app.app_context().push() # this does the binding
         return app

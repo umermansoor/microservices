@@ -13,6 +13,8 @@ class TestMoviesService(FlaskTestingCase):
         """ Dynamically bind a fake  database to real application """
         app = Flask(__name__)
         app.config['TESTING'] = True
+        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///:memory:"
         showtimes.db.init_app(app)
         app.app_context().push() # this does the binding
         return app
@@ -76,14 +78,6 @@ class TestMoviesService(FlaskTestingCase):
         showtimes.db.session.add(s2)
         showtimes.db.session.add(s3)
         showtimes.db.session.commit()
-    
-    def fields_dict(self, object):
-      """ Get an instane of a model and 
-          return a dict with fields and values
-      """
-      column_keys = object.__table__.columns.keys()
-      values_dict = dict( (column, getattr(object, column)) for column in column_keys )
-      return values_dict
 
 if __name__ == "__main__":
     main()
